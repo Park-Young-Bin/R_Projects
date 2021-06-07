@@ -1,0 +1,142 @@
+---
+title: "bus_승하차"
+author: "PYB"
+date: '2021 1 13 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1. 필요한 패키지 설치 및 로드
+
+rehshape2 패키지를 이용해서 데이터를 원하는 모양으로 가공할 것이다.
+```{r}
+library(reshape2)
+library(dplyr)
+library(ggplot2)
+```
+
+### 2. 데이터 불러오기
+
+raw_bus를 원본 데이터로 가져온다.
+```{r}
+raw_bus <- read.csv("bus_승하차.csv")
+
+# 데이터 파악
+head(raw_bus)
+str(raw_bus)
+table(is.na(raw_bus))
+```
+
+### 3. 승/하차가 가장 많은 노선번호(21년 1월 1일)
+
+전처리 과정에서 노선번호 변수를 group으로 해서 
+승차인원수, 하차인원수의 합을 각각 summarise 함수로 요약한다.
+
+melt 함수를 이용해 노선번호 변수를 고정으로 하고, 
+sum_승하/하차 변수와 그에 대응되는 승객수 값을 각각 한 개의 열로 통합한다.(총 2개 열로 분리됨)
+```{r}
+# 필요한 데이터 생성
+df <- raw_bus %>% 
+  select("사용일자", "노선번호", "노선명", "승차총승객수", "하차총승객수") # 필요한 데이터만 추출
+
+raw_Top5_bus <- df %>% 
+  filter(사용일자 == "20210101") %>% 
+  group_by(노선번호) %>% 
+  summarise(sum_승차 = sum(승차총승객수),
+            sum_하차 = sum(하차총승객수)) %>% 
+  arrange(desc(sum_승차)) %>% 
+  head(5)
+raw_Top5_bus
+
+# melt 함수를 이용한 데이터 가공
+Top5_bus <- melt(raw_Top5_bus, id = "노선번호")
+Top5_bus
+
+# 열 변수명 변경
+colnames(Top5_bus) <- c("노선번호", "승하차", "사람")
+
+# 막대 그래프 생성
+ggplot(data = Top5_bus, aes(x = reorder(노선번호, 사람/1000), y = 사람/1000, fill = 승하차)) +
+  geom_col(position = "dodge") +
+  ggtitle("Top_bus(21년 1월 1일)") +
+  theme_bw() + # 배경 설정
+  xlab("노선번호") + 
+  ylab("사람수(단위: 천 명)") +
+  theme(plot.title = element_text(face = "bold", # 그래프 제목 서식 설정
+                                  hjust = 0.5,
+                                  size = 20),
+        axis.title.x = element_text(face = "bold", # x축 제목 서식 설정
+                                    size = 15),
+        axis.title.y = element_text(face = "bold", # y축 제목 서식 설정
+                                    size = 15),
+        legend.position = "top") # 범례 위치 지정
+```
+
+### 4. 종로03번 정류장별 승/하차 승객수(21년 1월 4일)
+```{r}
+# 필요한 데이터 생성
+jongro_03 <- raw_bus %>% 
+  filter(사용일자 == "20210104" & 노선번호 == "종로03") %>% 
+  select("역명", "승차총승객수", "하차총승객수")
+
+jongro_03 <- rename(jongro_03,
+                    승차인원 = 승차총승객수,
+                    하차인원 = 하차총승객수) # 변수명 변경
+
+# melt 함수를 이용한 데이터 가공
+jongro_03 <- melt(jongro_03, id = "역명")
+head(jongro_03)
+
+# 열 변수명 변경
+colnames(jongro_03) <- c("역명", "승하차", "승객수") # 열 변수명 변경
+
+# 선 그래프 생성
+ggplot(data = jongro_03, aes(x = 역명, y = 승객수, col = 승하차, group = 승하차)) +
+  geom_line(size = 1) + 
+  geom_point(size = 2) +
+  ggtitle("종로03번 정류장별 승/하차 승객수") + 
+  theme_bw() + # 배경 설정
+  theme(plot.title = element_text(face = "bold",
+                                  hjust = 0.5,
+                                  size = 20),
+        axis.text.x = element_text(hjust = 1,
+                                   angle = 30),
+        legend.title = element_blank(), # 범례 제목 삭제
+        legend.position = "top", # 범례 위치 지정
+        axis.title = element_blank()) # 축 제목 삭제
+
+```
+
+### 5. 종로08번 정류장별 승/하차 승객수(21년 1월 4일)
+```{r}
+# 필요한 데이터 생성
+jongro_08 <- raw_bus %>% 
+  filter(사용일자 == "20210104" & 노선번호 == "종로08") %>% 
+  select("역명", "승차총승객수", "하차총승객수")
+
+# melt 함수를 이용한 데이터 가공
+jongro_08 <- melt(jongro_08, id = "역명")
+head(jongro_08)
+
+# 열 변수명 변경
+colnames(jongro_08) <- c("역명", "승하차", "승객수")
+
+# 선 그래프 생성성
+ggplot(data = jongro_08, aes(x = 역명, y = 승객수, col = 승하차, group = 승하차)) +
+  geom_line(size = 1) + 
+  geom_point(size = 2) +
+  ggtitle("종로08번 정류장별 승/하차 승객수") + 
+  theme_bw() + # 배경 설정
+  theme(plot.title = element_text(face = "bold",
+                                  hjust = 0.5,
+                                  size = 20),
+        axis.text.x = element_text(hjust = 1,
+                                   angle = 30),
+        legend.title = element_blank(), # 범례 제목 삭제
+        legend.position = "top", # 범례 위치 지정
+        axis.title = element_blank()) # 축 제목 삭제
+```
+
