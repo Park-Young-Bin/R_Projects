@@ -146,21 +146,38 @@ str(df1_yp)
 # '년도' 변수타입이 Date로 변했음을 알 수 있다. 결과는 '년도-월-일'로 나오는데, 월과 일자는 현재를 기준으로 반환되는 것 같다.
 
 # 하지만 '월-일'은 필요없는 정보임으로 이를 제거했다.(새로운 변수 생성_month)
-df1_yp$month <- format(as.Date(df1_yp$년도), '%Y')
+df1_yp$year <- format(as.Date(df1_yp$년도), '%Y')
+str(df1_yp) 
 # 혹은 format(as.Date(as.character(df1_yp$년도)), '%Y') 코드로 한 번에 실행할 수 있다.
+# 위의 코드를 실행하면 year 라는 변수가 chr 타입으로 생성된다.
 
 # 년도 변수는 필요없으니 삭제
 df1_yp <- df1_yp %>% select(-년도)
 
 # 데이터 구조 변환 실시
 library(reshape2)
-df1_yp_reshape <- melt(df1_yp, id.vars = 'month')
+df1_yp_reshape <- melt(df1_yp, id.vars = 'year')
 
+df1_yp_reshape$year <- as.integer(df1_yp_reshape$year)# x축이 문자형이거나 factor 형이면 오류가 발생하므로 숫자형태로 바꾼다.
 
+ggplot(data=df1_yp_reshape, aes(x = year, y = value, col = variable)) +
+  geom_line(size=1.2) + # 선 굵기 지정
+  ggtitle('영풍문고 시간별 평가요소 점수 변화') + 
+  theme_classic() + 
+  xlab('점수')+
+  ylab('연도') + 
+  ylim(0, 100) + # y축 범위 지정
+  scale_x_continuous(breaks = seq(2007, 2018, 1)) + # 일정한 간격으로 x축 설정
+  scale_y_continuous(breaks = seq(0,100, 10))+ # 일정한 간격으로 y축 설정
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 18,
+                                  hjust = 0.5),
+        legend.position = 'top',
+        legend.title = element_blank())
+  
+## 결과
+## 영풍문고의 2007년~2018년(2010, 2011, 2012년 제외)의 평가점수 변화 그래프를 그렸다. 소비자보호평가, 이용자만족평가, 피해발생평가 모두 비슷한 경향을 보이다가 2017년에 반대로 낮은 점수를 받거나 높은 점수를 받았다. 이 부분에 대해서는 추가적인 조사가 필요할 것이다. 그리고 전체평가 점수는 2014년부터 점차 높은 점수를 받고 있다.
+## 이용자만족평가와 소비자보호평가가 동시에 떨어졌고, 피해발생평가가 그만큼 상승했으므로 연관성이 있어보인다. 그 이후에는 다시 이전과 같은 경향을 보인다.
+## 또한 2010, 2011, 2012년에 받은 점수는 없으므로 해당 년도 데이터는 제외해서 봐야할 것이다.
 
-ggplot(data=df1_yp, aes(x = month, y = 소비자보호평가, group = 1)) +
-  geom_line(aes(x = month, y = 이용자만족평가)) + 
-  geom_line(aes(month, 피해발생평가)) + 
-  geom_line(aes(month, 전체평가))
-
-# 7. 
+#### 7. ---- 
