@@ -24,15 +24,19 @@ dim(df)
 str(df)
 summary(df)
 
+par(mfrow = c(2,2)) # 2행 2열로 화면분할
 hist(df$소비자보호평가)
 hist(df$이용자만족평가)
 hist(df$피해발생평가)
 hist(df$전체평가)
+par(mfrow=c(1,1)) # 복구
 
+par(mfrow = c(2,2)) # 2행 2열로 화면분할
 boxplot(df$소비자보호평가, main='소비자보호평가')
 boxplot(df$이용자만족평가, main ='이용자만족평가')
 boxplot(df$피해발생평가, main='피해발생평가')
 boxplot(df$전체평가, main='전체평가')
+par(mfrow=c(1,1)) # 복구
 
 #### 3. 데이터 전처리----
 ## 1) 분류명 통일
@@ -160,6 +164,7 @@ df1_yp_reshape <- melt(df1_yp, id.vars = 'year')
 
 df1_yp_reshape$year <- as.integer(df1_yp_reshape$year)# x축이 문자형이거나 factor 형이면 오류가 발생하므로 숫자형태로 바꾼다.
 
+# 선그래프 시각화
 ggplot(data=df1_yp_reshape, aes(x = year, y = value, col = variable)) +
   geom_line(size=1.2) + # 선 굵기 지정
   ggtitle('영풍문고 시간별 평가요소 점수 변화') + 
@@ -174,6 +179,12 @@ ggplot(data=df1_yp_reshape, aes(x = year, y = value, col = variable)) +
                                   hjust = 0.5),
         legend.position = 'top',
         legend.title = element_blank())
+
+# 막대그래프 시각화
+ggplot(data=df1_yp_reshape, aes(x = year, y = value, col=variable)) +
+  geom_col(position = 'dodge')
+
+
   
 ## 결과
 ## 영풍문고의 2007년~2018년(2010, 2011, 2012년 제외)의 평가점수 변화 그래프를 그렸다. 소비자보호평가, 이용자만족평가, 피해발생평가 모두 비슷한 경향을 보이다가 2017년에 반대로 낮은 점수를 받거나 높은 점수를 받았다. 이 부분에 대해서는 추가적인 조사가 필요할 것이다. 그리고 전체평가 점수는 2014년부터 점차 높은 점수를 받고 있다.
