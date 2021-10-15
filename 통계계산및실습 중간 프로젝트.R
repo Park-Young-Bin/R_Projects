@@ -29,3 +29,29 @@ t.test(data$first, data$second, paired = TRUE)
 
 # 엑셀 파일 저장
 write_xlsx(data, 'data.xlsx')
+
+# 단일모집단 평균 구간추정
+
+# 패키지 설치 및 로드
+install.packages('ggplot2')
+library(ggplot2)
+
+# 데이터 불러오기 및 확인
+mpg <- as.data.frame(ggplot2::mpg)
+head(mpg)
+
+# 배기량 평균
+mean(mpg$displ) # 3.471795
+
+# 샘플링
+sample(mpg$displ, 10)
+
+# 신뢰구간 계산
+n <- 10
+a <- c(6.1, 3.1, 2.4, 3.0, 5.4, 5.2, 3.5, 4.0, 4.7, 4.0)
+xbar <- mean(a)
+s <- sd(a)
+alpha_95 <- .05
+se_1 <- s/sqrt(n)
+ms_95 <- qt(1-alpha_95/2, n-1) * se_1
+xbar + c(-ms_90, ms_95)
