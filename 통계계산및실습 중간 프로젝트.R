@@ -46,7 +46,7 @@ mean(mpg$displ) # 3.471795
 # 샘플링
 sample(mpg$displ, 10)
 
-# 신뢰구간 계산
+# 단일모집단 평균에 대한 신뢰구간 계산
 n <- 10
 a <- c(6.1, 3.1, 2.4, 3.0, 5.4, 5.2, 3.5, 4.0, 4.7, 4.0)
 xbar <- mean(a)
@@ -55,3 +55,27 @@ alpha_95 <- .05
 se_1 <- s/sqrt(n)
 ms_95 <- qt(1-alpha_95/2, n-1) * se_1
 xbar + c(-ms_90, ms_95)
+
+# 단일모집단 비율에 대한 신뢰구간 계산
+phat <-  0.307
+se <- sqrt(phat*(1-phat)/n)
+me_95 <- qnorm(1-alpha_95/2) *se
+phat + c(-me_95, +me_95)
+
+# 단일모집단 표준편차에 대한 신뢰구간 계산
+# 데이터 확인
+head(iris)
+
+# 행, 열 개수 확인
+dim(iris)
+
+# 컬럼명 확인
+colnames(iris)
+
+# 신뢰구간 계산
+x <- sample(iris$Petal.Length, 15)
+n <- length(x)
+s <- sd(x)
+alpha_95 <- 0.05
+se_1 <- s/sqrt(n)
+((n-1)*s^2)/c(qchisq(c(1-alpha_95/2, alpha_95/2), df=n-1))
