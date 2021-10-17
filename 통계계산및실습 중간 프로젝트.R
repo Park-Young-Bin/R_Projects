@@ -79,3 +79,33 @@ s <- sd(x)
 alpha_95 <- 0.05
 se_1 <- s/sqrt(n)
 ((n-1)*s^2)/c(qchisq(c(1-alpha_95/2, alpha_95/2), df=n-1))
+
+# 단일모집단 평균에 대한 가설검정
+# 패키지 설치 및 로드
+# install.packages('ggplot2')
+library(ggplot2)
+
+# 데이터 불러오기 및 확인
+mpg <- as.data.frame(ggplot2::mpg)
+head(mpg)
+
+# 배기량 평균/표준편차
+mean(mpg$cty) # 16.85897
+sd(mpg$cty) # 4.255946
+
+# 가설검정 p-값 계산
+n <- 50
+xbar <- mean(sample(mpg$cty, n))
+z <- (xbar - 16.85897)/(4.255946/sqrt(n))
+pnorm(z)
+
+# 단일모집단 비율에 대한 가설검정
+prop.test(x = 290, n = 1001, p=0.35, alternative = 'two.sided', correct = F)
+
+# 단일모집단 표준편차에 대한 가설검정
+n <- 40
+s <- sd(sample(iris$Sepal.Length, 40))
+sigma <- 0.8
+chi <- ((n-1)*s^2)/ (sigma^2)
+chi
+
